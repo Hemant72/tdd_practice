@@ -1,7 +1,7 @@
 import 'package:tdd_practice/core/utils/typedef.dart';
 import 'package:tdd_practice/src/auth/domain/entities/user.dart';
 
-sealed class AuthRepositiory {
+abstract class AuthRepositiory {
   const AuthRepositiory();
 
   ResultVoid createUser({
