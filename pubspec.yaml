@@ -30,15 +30,16 @@ environment:
 dependencies:
   cupertino_icons: ^1.0.8
   dartz: ^0.10.1
+  dio: ^5.7.0
   equatable: ^2.0.5
   flutter:
     sdk: flutter
 
 dev_dependencies:
   flutter_lints: ^4.0.0
-  mocktail: ^1.0.4
   flutter_test:
     sdk: flutter
+  mocktail: ^1.0.4
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
