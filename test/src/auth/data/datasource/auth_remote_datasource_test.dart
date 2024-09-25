@@ -1,9 +1,12 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:tdd_practice/core/error/exception.dart';
 import 'package:tdd_practice/core/utils/constants.dart';
 import 'package:tdd_practice/src/auth/data/datasource/auth_remote_datasource.dart';
+import 'package:tdd_practice/src/auth/data/model/user_model.dart';
 
 class MockClient extends Mock implements Dio {}
 
@@ -89,24 +92,53 @@ void main() {
     });
   });
 
-  // group("get User", () {
-  //   test('Should complete the call when the status code is 200 and 201',
-  //       () async {
-  //     // Arrange
-  //     when(() => client.get(any())).thenAnswer((_) async => Response(
-  //           requestOptions: RequestOptions(
-  //             path: '$kBaseUrl/user', // Replace with your URL or path
-  //             method: 'GET', // Specify the HTTP method
-  //           ),
-  //           statusMessage: "User get successfully",
-  //           statusCode: 201,
-  //         ));
-  //     // Act
-  //     // final result = await client.get(path);
-  //     // Assert
-  //     // expect(result, completes);
-  //     verify(() => client.get("$kBaseUrl/user")).called(1);
-  //     verifyNoMoreInteractions(client);
-  //   });
-  // });
+  group("get User", () {
+    const tModel = [UserModel.empty()];
+    test('Should complete the call when the status code is 200 and 201',
+        () async {
+      // Arrange
+      when(() => client.get(any())).thenAnswer((_) async => Response(
+            requestOptions: RequestOptions(
+              path:
+                  '$kBaseUrl/user', // Use relative path, ensure this matches the endpoint
+              method: 'GET', // Specify the HTTP method
+            ),
+            statusMessage: "User get successfully",
+            statusCode: 201,
+            data: jsonEncode([tModel.first.toMap()])
+          ));
+      // Act
+      final methodCall = await datasource.getUser();
+      // Assert
+      expect(methodCall, equals(tModel));
+      verify(() => client.get('$kBaseUrl/user')).called(1);
+      verifyNoMoreInteractions(client);
+    });
+
+    test(
+        "Should throw an [Server Excpetion] when the status code is not 200 and 201",
+        () async {
+      //arange
+      when(() => client.get(any())).thenAnswer((_) async => Response(
+            requestOptions: RequestOptions(
+              path:
+                  '$kBaseUrl/user', // Use relative path, ensure this matches the endpoint
+              method: 'GET', // Specify the HTTP method
+            ),
+            statusMessage: "error message",
+            statusCode: 500,
+          ));
+
+      // act
+
+      final methodCall = datasource.getUser();
+      //assert
+      expect(
+          methodCall,
+          throwsA(const ServerException(
+              message: "error message", statusCode: 500)));
+      verify(() => client.get('$kBaseUrl/user')).called(1);
+      verifyNoMoreInteractions(client);
+    });
+  });
 }
