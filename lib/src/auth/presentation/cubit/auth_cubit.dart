@@ -4,30 +4,28 @@ import 'package:tdd_practice/src/auth/domain/entities/user.dart';
 import 'package:tdd_practice/src/auth/domain/usecases/create_user.dart';
 import 'package:tdd_practice/src/auth/domain/usecases/get_user.dart';
 
-part 'auth_event.dart';
 part 'auth_state.dart';
 
-class AuthBloc extends Bloc<AuthEvent, AuthState> {
+class AuthCubit extends Cubit<AuthState> {
   final CreateUser _createUser;
   final GetUser _getUser;
-  AuthBloc({
+  AuthCubit({
     required CreateUser createUser,
     required GetUser getUser,
   })  : _createUser = createUser,
         _getUser = getUser,
-        super(AuthInitial()) {
-    on<CreateUserEvent>(_createUserHandler);
-    on<GetUserEvent>(_getUserHandler);
-  }
+        super(AuthInitial());
 
-  Future<void> _createUserHandler(
-      CreateUserEvent event, Emitter<AuthState> emit) async {
+  Future<void> createUserHandler(
+      {required String name,
+      required String avatar,
+      required String createdAt}) async {
     emit(const CreatingUser());
     final result = await _createUser(
       CreateUserParams(
-        name: event.name,
-        avatar: event.avatar,
-        createdAt: event.createdAt,
+        name: name,
+        avatar: avatar,
+        createdAt: createdAt,
       ),
     );
     result.fold((l) {
@@ -37,8 +35,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     });
   }
 
-  Future<void> _getUserHandler(
-      GetUserEvent event, Emitter<AuthState> emit) async {
+  Future<void> getUserHandler() async {
     emit(const GetingUser());
     final result = await _getUser();
     return result.fold((l) {
@@ -46,11 +43,5 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }, (r) {
       emit(UserLoaded(r));
     });
-  }
-
-  @override
-  void onTransition(Transition<AuthEvent, AuthState> transition) {
-    super.onTransition(transition);
-    print(transition);
   }
 }
