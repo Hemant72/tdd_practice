@@ -53,10 +53,14 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDataSource {
             message: res.statusMessage!, statusCode: res.statusCode!);
       }
 
-      final List<dynamic> jsonResponse = jsonDecode(res.data);
+      final jsonResponse = (res.data is String)
+          ? jsonDecode(res.data) as List<dynamic>
+          : res.data as List<dynamic>;
+
       final data = jsonResponse
           .map((map) => UserModel.fromMap(map as Map<String, dynamic>))
           .toList();
+
       return data;
     } on ServerException {
       rethrow;
